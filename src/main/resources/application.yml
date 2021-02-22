@@ -1,0 +1,14 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: 123456
+    url: jdbc:mysql://localhost:3306/pathhome?useUnicode=true&characterEncoding=UTF-8
+mybatis:
+  type-aliases-package: cn.watson.org.domain,cn.watson.org.query,
+logging:
+  level:
+      cn:
+        watson: trace

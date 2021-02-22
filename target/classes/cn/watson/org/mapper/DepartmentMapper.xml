@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.watson.org.mapper.DepartmentMapper">
+    <sql id="queryName">
+        <if test="name != null">
+            <where>
+                AND name Like concat('%',#{name},'%')
+            </where>
+        </if>
+    </sql>
+
+    <!--Integer save(Department department);-->
+    <insert id="save" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+        INSERT INTO t_department (
+            sn,
+            name,
+            dirPath,
+            state,
+            manager_id,
+            parent_id
+        ) VALUES (
+            #{sn},
+            #{name},
+            #{dirPath},
+            #{state},
+            #{manager_id},
+            #{parent_id}
+        )
+    </insert>
+
+    <!--void update(Department department);-->
+    <update id="update" parameterType="Department">
+        UPDATE t_department SET
+            sn=#{sn},
+            name=#{name},
+            dirPath=#{dirPath},
+            state=#{state},
+            manager_id=#{manager_id},
+            parent_id=#{parent_id}
+        WHERE id = #{id}
+    </update>
+
+    <!--void delete(Long id);-->
+    <delete id="delete" parameterType="Long">
+        DELETE FROM t_department WHERE id = #{id}
+    </delete>
+
+    <!--ArrayList<Department> show();-->
+    <select id="show" resultType="Department">
+        SELECT * FROM t_department
+    </select>
+
+    <!--Department getById(Long id);-->
+    <select id="getById" parameterType="Long" resultType="Department">
+        SELECT * FROM t_department WHERE id = #{id}
+    </select>
+
+    <resultMap id="DeptList" type="Department">
+        <id property="id" column="id"></id>
+        <result property="name" column="name"></result>
+        <result property="sn" column="sn"></result>
+        <result property="dirPath" column="sn"></result>
+        <collection column="manager_id" select="getManager" property="manager" javaType="Department">
+        </collection>
+        <collection column="parent_id" select="getParent" property="parent" javaType="Department">
+        </collection>
+    </resultMap>
+    <!-- ArrayList<Department> getPageData(DepartmentQuery query);-->
+    <select id="getPageData" parameterType="DepartmentQuery" resultMap="DeptList">
+        SELECT * FROM t_department
+        <include refid="queryName"></include>
+         LIMIT #{startPage} , #{pageSize}
+    </select>
+    <select id="getManager" parameterType="Long" resultType="Employee">
+        SELECT * FROM t_employee where id = #{id}
+    </select>
+    <select id="getParent" parameterType="Long" resultType="Department">
+        SELECT * FROM t_department where id = #{id}
+    </select>
+    <!--Integer getCount(DepartmentQuery query);-->
+    <select id="getCount" parameterType="DepartmentQuery" resultType="Integer">
+        SELECT count(*) FROM t_department
+        <include refid="queryName"></include>
+    </select>
+
+    <!--void batchRemove(List<Long> ids);-->
+    <delete id="batchRemove">
+        DELETE FROM t_department WHERE id IN
+        <foreach collection="list" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>
